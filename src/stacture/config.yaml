@@ -1,0 +1,217 @@
+metadata:
+  title: This is the first Stacture API
+
+apis:
+  maps: true
+  coverages: true
+
+ows:
+  wms:
+    versions: ["1.3.0", "1.1.0"]
+  wcs:
+    versions: ["2.0.0"]
+
+
+sources:
+  S2L1C:
+    type: stac-api
+    href: https://earth-search.aws.element84.com/v1/
+    collection: sentinel-2-l1c
+
+    filter: {}
+      # CQL2 JSON filter
+
+    # extra fields that will be added to the items
+    extra:
+      assets:
+        TRUE_COLOR:
+          href: "#/assets/TRUE_COLOR"
+          roles: [ "data", "virtual" ]
+          title: Sentinel-2 Natural Color
+          type: image/tiff; application=geotiff
+          vrt:href:
+            - key: red
+              href: "#/assets/B04"
+            - key: green
+              href: "#/assets/B03"
+            - key: blue
+              href: "#/assets/B02"
+
+        NDVI:
+          href: "#/assets/NDVI"
+          title: Normalized Difference Vegetation Index
+          roles: [ "virtual", "data", "index" ]
+          type: image/tiff; application=geotiff
+          vrt:hrefs:
+            - key: B04
+              href: "#/assets/B04"
+            - key: B05
+              href: "#/assets/B05"
+          vrt:algorithm: band_arithmetic
+          vrt:algorithm_opts:
+            expression: (B05–B04)/(B05+B04)
+            rescale: [[-1,1]]
+
+  SeasFire:
+    type: stac-item
+    url: https://s3.waw2-1.cloudferro.com/swift/v1/AUTH_3f7e5dd853f54cebb046a29a69f1bba6/Catalogs/seasfire/seasfire-cube/SeasFireCube_v.0.3.zarr/SeasFireCube_v.0.3.zarr.json
+    extra: {}
+    # ...
+
+
+
+collections:
+  S2L1C:
+    # TODO: metadata or from collection object?
+    # title:
+    # description:
+    # keywords:
+
+    source: S2L1C
+
+    # Allows access to a single item in the collection, if the identifier
+    # passed matches any of these patterns
+    id_patterns:
+      - "S2A_.*_L1C"
+      - "S2B_.*_L1C"
+
+    map:
+      default_style: default
+      styles:
+
+        # /collections/S2L1C/map
+        default:
+          asset: TCI
+        # /collections/S2L1C/styles/TRUE_COLOR/map
+        TRUE_COLOR:
+          asset: TRUE_COLOR
+          range: [0, 4000]
+
+        # /collections/S2L1C/styles/FALSE_COLOR/map
+        FALSE_COLOR:
+          assets: [B8, B4, B3]
+          range: [0, 4000]
+
+        # /collections/S2L1C/styles/NDVI/map
+        # /collections/S2L1C/styles/NDVI.viridis/map
+        NDVI:
+          asset: NDVI
+          range: [-1, 1]
+          default_color_map: heat
+          color_maps:
+            heat: heat
+            viridis: viridis
+            custom: MyCustomColorMap
+
+  S2L2A:
+    # TODO: metadata or from collection object?
+    # title:
+    # description:
+    # keywords:
+
+    source: S2L2A
+
+    # Allows access to a single item in the collection, if the identifier
+    # passed matches any of these patterns
+    id_patterns:
+      - "S2A_.*_L2A"
+      - "S2B_.*_L2A"
+
+    map:
+      default_style: default
+      styles:
+        # /collections/S2L2A/map
+        default:
+          asset: visual
+        # /collections/S2L2A/styles/TRUE_COLOR/map
+        TRUE_COLOR:
+          asset: TRUE_COLOR
+          range: [0, 4000]
+
+        # /collections/S2L2A/styles/FALSE_COLOR/map
+        FALSE_COLOR:
+          assets: [B8, B4, B3]
+          range: [0, 4000]
+
+        # /collections/S2L2A/styles/NDVI/map
+        # /collections/S2L2A/styles/NDVI.viridis/map
+        NDVI:
+          asset: NDVI
+          range: [-1, 1]
+          default_color_map: heat
+          color_maps:
+            heat: heat
+            viridis: viridis
+            custom: MyCustomColorMap
+
+    coverage:
+      # TODO: list assets that comprise coverage
+      fields:
+        - name: coastal
+          asset: coastal
+          resample:
+            to: red
+            interpolate: linear
+        - name: blue
+          asset: B02
+        - name: green
+          asset: B03
+        - name: red
+          asset: B04
+          # TODO: other metadata for CIS/WCS
+        - name: NDVI
+          asset: NDVI
+        # ...
+
+  # SeasFire:
+  #   source: SeasFire
+
+
+color_maps:
+  MyCustomColorMap:
+    type: ramp # intervals, values
+    color_map:
+      - color: "#EEBE2F"
+        quantity: -300
+        label: "label"
+        opacity: 0
+      - color: "#2851CC"
+        quantity: 0
+        label: "values"
+        opacity: 1
+      - color: "#211F1F"
+        quantity: 50
+        label: "label"
+        opacity: 1
+      - color: "#EE0F0F"
+        quantity: 100
+        label: "label"
+        opacity: 1
+      - color: "#AAAAAA"
+        quantity: 200
+        label: "label"
+        opacity: 1
+      - color: "#6FEE4F"
+        quantity: 250
+        label: "label"
+        opacity: 1
+      - color: "#3ECC1B"
+        quantity: 300
+        label: "label"
+        opacity: 1
+      - color: "#886363"
+        quantity: 350
+        label: "label"
+        opacity: 1
+      - color: "#5194CC"
+        quantity: 400
+        label: "label"
+        opacity: 1
+      - color: "#2C58DD"
+        quantity: 450
+        label: "label"
+        opacity: 1
+      - color: "#DDB02C"
+        quantity: 600
+        label: "label"
+        opacity: 1
